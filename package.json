@@ -1,0 +1,26 @@
+{
+  "name": "chart-wx",
+  "version": "0.1.0",
+  "description": "Quotation chart manager for weixin",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/WeixinNodeModules/chart-wx.git"
+  },
+  "keywords": [
+    "chart",
+    "wx"
+  ],
+  "author": "xianda.zheng",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/WeixinNodeModules/chart-wx/issues"
+  },
+  "homepage": "https://github.com/WeixinNodeModules/chart-wx#readme",
+  "dependencies": {
+    "moment": "^2.18.1"
+  }
+}
