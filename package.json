@@ -21,6 +21,9 @@
   },
   "homepage": "https://github.com/WeixinNodeModules/chart-wx#readme",
   "dependencies": {
+    "lodash.head": "^4.0.1",
+    "lodash.isnumber": "^3.0.3",
+    "lodash.last": "^3.0.0",
     "moment": "^2.18.1"
   }
 }
