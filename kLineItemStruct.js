@@ -9,7 +9,7 @@ module.exports = function KLineItemStruct(quotationData = {
   close = 0,
   value = 0,
   volume = 0,
-  avgclose = 0,
+  avg = 0,
   updateTime = '',
   status = false,
   preClose = 0
@@ -20,7 +20,7 @@ module.exports = function KLineItemStruct(quotationData = {
   this.close = quotationData.close
   this.value = quotationData.value
   this.volume = quotationData.volume
-  this.avgclose = quotationData.avgClose
+  this.avg = quotationData.avg
   this.updateTime = quotationData.updateTime
   this.status = quotationData.status
   this.preClose = quotationData.preClose
