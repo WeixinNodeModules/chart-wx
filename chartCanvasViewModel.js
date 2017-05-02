@@ -1,4 +1,7 @@
+var CanvasIds = require('./chartCanvasConfig').canvasIds
+
 module.exports = function ChartCanvas(chartCanvasModel) {
+  this.chartCanvasIds = CanvasIds
   this.backgroundRect = {
     beginX: 0,
     beginY: 0,
@@ -7,6 +10,8 @@ module.exports = function ChartCanvas(chartCanvasModel) {
   }
 
   this.meshRect = {
+    row: model.meshFrame.row,
+    column: model.meshFrame.column,
     width: model.meshFrame.width,
     height: model.meshFrame.height,
     beginX: model.meshFrame.origin.x,
