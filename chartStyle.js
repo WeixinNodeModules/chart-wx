@@ -1,51 +1,59 @@
 module.exports = {
   canvasFrame: {
     size: {
-      height: 0,
-      width: 0
+      height: 245,
+      width: 375,
     },
     meshFrame: {
       padding: {
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0
+        top: 10,
+        left: 50,
+        bottom: 20,
+        right: 0,
       },
-      row: 1,
-      column: 1
+      row: 4,
+      column: 4,
     },
     priceFrame: {
-      paddingLeft: 0,
-      textAlign: 'left'
+      paddingLeft: 25,
+      textAlign: 'center',
     },
     percentFrame: {
-      paddingLeft: 0,
-      textAlign: 'left'
+      paddingLeft: 375,
+      textAlign: 'right',
     },
     timeFrame: {
-      paddingTop: 0
+      paddingTop: 245,
     },
     chartFrame: {
-      chartPaddingVertical: 0
+      chartPaddingVertical: 12,
     }
   },
-  backgroundColor: '#ffffff',
-  meshColor: '#ffffff',
+  backgroundColor: 'white',
+  meshLineWidth: 0.5,
+  meshColor: 'gray',
   priceTextFont: '12',
-  priceTextColor: '#ffffff',
+  priceTextColor: {
+    normal: 'black',
+    up: 'red',
+    down: 'green',
+  },
   percentTextFont: '12',
   percentTextColor: {
-    normal: '#ffffff',
-    up: '#ff0000',
-    down: '#00ffff',
+    normal: 'black',
+    up: 'red',
+    down: 'green',
   },
   timeTextFont: '12',
-  timeTextColor: '#ffffff',
+  timeTextColor: 'black',
   textAlign: {
     right: 'right',
     center: 'center',
     left: 'left',
   },
-  minuteLineColor: '#ffffff',
-  avgLineColor: '#ffffff',
+  minuteLineWidth: 0.5,
+  minuteLineColor: 'blue',
+  minuteFillColor: 'yellow',
+  avgLineWidth: 0.5,
+  avgLineColor: 'orange',
 }
