@@ -5,16 +5,21 @@ var Head = require('lodash.head')
 const kQuotationSpace = 1 * 60 // second
 
 module.exports = function QuotationModel() {
-  this.init = function(quotationInfo = {
-    kLineItems = [],
+  this.kLineItems = []
+  this.totalDataCount = 0
+  this.timings = []
+  this.preClose = 0
+  this.tradeDate = ''
+  this.nextTradeDateStartTime = ''
+
+  //数据更新
+  this.updateInfo = function(quotationInfo = {
     totalDataCount = 0,
     timings = [],
     preClose = 0,
     tradeDate = '',
     nextTradeDateStartTime = ''
   }) {
-    this.kLineItems = quotationInfo.kLineItems || [] //Array<KLineItemStruct>
-
     this.totalDataCount = quotationInfo.totalDataCount || 0
     this.timings = quotationInfo.timings || [] //Array<Array<Number, Number>>
     this.preClose = quotationInfo.preClose || 0
@@ -26,7 +31,6 @@ module.exports = function QuotationModel() {
     this.minClose = Math.min() //Number
   }
 
-  //数据更新
   this.updateDatas = function(newKLineItems) {
     this._shouldUpdate() && this._updateKLineDatas(newKLineItems)
   }
