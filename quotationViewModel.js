@@ -1,5 +1,4 @@
 var Percent = require('./utils').percent
-var Last = require('lodash.last')
 
 module.exports = function QuotationViewModel(chartCanvasModel) {
   this.chartCanvasModel = chartCanvasModel
@@ -7,66 +6,82 @@ module.exports = function QuotationViewModel(chartCanvasModel) {
   this.meshY = chartCanvasModel.meshFrame.origin.y
   this.meshWidth = chartCanvasModel.meshFrame.size.width
   this.meshHeight = chartCanvasModel.meshFrame.size.height
+  this.timeStrings = []
+  this.timeSections = []
 
   this.updateDatas = function(quotationModel) {
     this.quotationModel = quotationModel
-    this.totalPriceDistance = _totalPriceDistance(this.quotationModel, this.chartCanvasModel.chartPaddingVertical)
+    this.totalPriceDistance = this._totalPriceDistance(this.quotationModel, this.chartCanvasModel.chartFrame.chartPaddingVertical)
     this.beginPriceValue = this.quotationModel.preClose + this.totalPriceDistance / 2
-    this.spacePriceValue = this.totalPriceDistance / this.chartCanvasModel.meshFrame.row
 
-    this.timeStrings = []
-    this.timeSections = []
     this._setupTimings(this.quotationModel.timings)
   }
 
-  this.getX = function(index) {
+  this.getHorizantalLength = function(index) {
     let scale = index / this.quotationModel.totalDataCount
-    return this.meshX + scale * this.meshWidth
+    scale = Math.max(Math.min(1, scale), 0)
+    return scale * this.meshWidth
+  }
+
+  this.getX = function(index) {
+    return this.meshX + this.getHorizantalLength(index)
   }
 
   this.getIndex = function(x) {
-    let distance = (this.meshX - x)
     let scale = distance / this.meshWidth
     return Math.round(scale * this.quotationModel.totalDataCount)
   }
 
   this.getY = function(price) {
-    let scale = (this.beginPriceValue() - price) / this.totalPriceDistance
+    let scale = (this.beginPriceValue - price) / this.totalPriceDistance
+    scale = Math.max(Math.min(1, scale), 0)
     return this.meshY + scale * this.meshHeight
   }
 
   this.getPrice = function(y) {
     let distance = y - this.meshY
     let scale = distance / this.meshHeight
-    return this.beginPriceValue() + scale * this.totalPriceDistance
+    let price = this.beginPriceValue - scale * this.totalPriceDistance
+    return price.toFixed(this.quotationModel.decimalCount)
   }
 
   this.getPercent = function(y) {
     let price = this.getPrice(y)
-    return Percent(price - this.quotationModel.preClose, this.quotationModel.preClose)
+    let percent = Percent(Math.abs(price - this.quotationModel.preClose), this.quotationModel.preClose)
+    return percent
   }
 
-  this.getTime = function(index) {
-    return this.timeStrings[index]
-  }
-  this.getTimeX = function(index) {
-    return this.timeSections[index]
+  this._timeString = function(timing) {
+    let hour = parseInt(timing / 60)
+    let minute = timing % 60 || '00'
+    return hour + ':' + minute
   }
 
   this._setupTimings = function(timings) {
+    let timeStrings = []
+    let timeSections = [this.meshX]
+    let latestTiming = ''
     for (var i = 0; i < timings.length; i++) {
-      let latestTiming = i > 0 ? Last(timeStrings) + '/' : ''
-      this.timeStrings.push(latestTiming + parseInt(timings[i][0] / 60) + ':' + timings[i][0] % 60)
-      this.timeStrings.push(parseInt(timings[i][1] / 60) + ':' + timings[i][1] % 60)
+      latestTiming = i > 0 ? latestTiming + '/' : ''
+      timeStrings.push(latestTiming + this._timeString(timings[i][0]))
+      latestTiming = this._timeString(timings[i][1])
 
-      let latestTimeSection = i > 0 ? Last(timeSections) : 0
-      this.timeSections.push(this.getX((timings[i][1] - timings[i][0]) + latestTimeSection))
+      let latestTimeSection = timeSections[timeSections.length - 1] || 0
+      timeSections.push(this.getHorizantalLength(timings[i][1] - timings[i][0]) + latestTimeSection)
     }
+    timeStrings.push(latestTiming)
+    this.timeStrings = timeStrings
+    this.timeSections = timeSections
   }
-}
 
-_totalPriceDistance = function(quotationModel, paddingVertical) {
-  var firstHalf = quotationModel.maxClose - quotationModel.preClose
-  var secondHalf = quotationModel.minClose - quotationModel.preClose
-  return (Math.max(firstHalf, secondHalf) + paddingVertical) * 2
+  this._totalPriceDistance = function(quotationModel, paddingVertical) {
+    var preClose = quotationModel.preClose
+    var maxClose = quotationModel.maxClose == Math.max() ? preClose * (1 + 0.01) : quotationModel.maxClose
+    var minClose = quotationModel.minClose == Math.min() ? preClose * (1 - 0.01) : quotationModel.minClose
+    var firstHalf = Math.abs(maxClose - preClose)
+    var secondHalf = Math.abs(minClose - preClose)
+    var totalPriceDistance = Math.max(firstHalf, secondHalf) * 2
+    var scale = this.meshHeight / (this.meshHeight - paddingVertical * 2)
+    return totalPriceDistance * scale
+  }
 }

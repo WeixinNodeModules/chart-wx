@@ -1,151 +1,173 @@
-var chartStyle = require('./chartStyle')
+var ChartStyles = require('./chartStyles')
+var ChartCanvasIds = require('./chartCanvasIds')
 
 module.exports = function QuotationPainter(chartCanvasViewModel) {
-  this.style = chartStyle
   this.chartCanvasViewModel = chartCanvasViewModel
 
-  this.backgroundContext = wx.createCanvasContext(chartCanvasViewModel.chartCanvasIds.background)
-  this.meshContext = wx.createCanvasContext(chartCanvasViewModel.chartCanvasIds.mesh)
-  this.priceContext = wx.createCanvasContext(chartCanvasViewModel.chartCanvasIds.price)
-  this.percentContext = wx.createCanvasContext(chartCanvasViewModel.chartCanvasIds.percent)
-  this.timeContext = wx.createCanvasContext(chartCanvasViewModel.chartCanvasIds.time)
-  this.minuteLineContext = wx.createCanvasContext(chartCanvasViewModel.chartCanvasIds.minuteLine)
-  this.avgLineContext = wx.createCanvasContext(chartCanvasViewModel.chartCanvasIds.avgLine)
+  this.backgroundContext = wx.createCanvasContext(ChartCanvasIds.background)
+  this.meshContext = wx.createCanvasContext(ChartCanvasIds.mesh)
+  this.priceContext = wx.createCanvasContext(ChartCanvasIds.price)
+  this.percentContext = wx.createCanvasContext(ChartCanvasIds.percent)
+  this.timeContext = wx.createCanvasContext(ChartCanvasIds.time)
+  this.minuteLineContext = wx.createCanvasContext(ChartCanvasIds.minuteLine)
+  this.avgLineContext = wx.createCanvasContext(ChartCanvasIds.avgLine)
 
-  this._updateBackgroundContext(chartCanvasViewModel.backgroundRect)
-  this._updateMeshContext(chartCanvasViewModel.meshRect)
-  this._updateTimeContext(chartCanvasViewModel.timeRect)
+  this.init = function() {
+    this._drawBackgroundContext()
+    this._drawMeshContext()
+    this.shouldDrawTime = true
+  }
 
-  this.updateContexts = function(quotationViewModel) {
+  this.updateDatas = function(quotationViewModel) {
+    var marginValueChanged = this._isMarginValueChanged(this.quotationViewModel, quotationViewModel)
     this.quotationViewModel = quotationViewModel
 
-    //如果 最大值最小值变化 更新 价格和百分比
-    this._updatePriceContext(chartCanvasViewModel.priceRect)
-    this._updatePercentContext(chartCanvasViewModel.percentRect)
-
-    //如果 数据有新数据 更新 走势图
-    this._updateMinuteLineContext(chartCanvasViewModel.meshRect)
-    this._updateAvgLineContext(chartCanvasViewModel.meshRect)
+    if (this.shouldDrawTime) this._drawTimeContext()
+    if (marginValueChanged) this._drawPriceAndPercentContext()
+    this._drawChartLineContext()
   }
 
-  this.draw = function() {
-    this.backgroundContext.draw()
-    this.meshContext.draw()
-    this.priceContext.draw()
-    this.percentContext.draw()
-    this.timeContext.draw()
+  this._isMarginValueChanged = function(currentQuotationViewModel, newQuotationViewModel) {
+    if (!currentQuotationViewModel) return true
+    var maxMarginValueChanged = currentQuotationViewModel.quotationModel.maxClose != newQuotationViewModel.quotationModel.maxClose
+    var minMarginValueChanged = currentQuotationViewModel.quotationModel.minClose != newQuotationViewModel.quotationModel.minClose
+    return maxMarginValueChanged || minMarginValueChanged
   }
 
-  this._updateBackgroundContext = function(backgroundRect) {
-    let ctx = this.backgroundContext
-    ctx.setFillStyle(this.style.backgroundColor)
-    ctx.fillRect(backgroundRect.beginX, backgroundRect.beginY, backgroundRect.endX, backgroundRect.endY)
+  this._drawBackgroundContext = function() {
+    var bachgroundCtx = this.backgroundContext
+    var backgroundRect = this.chartCanvasViewModel.backgroundRect
+    bachgroundCtx.setFillStyle(ChartStyles.background.color)
+    bachgroundCtx.fillRect(backgroundRect.beginX, backgroundRect.beginY, backgroundRect.endX, backgroundRect.endY)
+    bachgroundCtx.draw()
   }
 
-  this._updateMeshContext = function(meshRect) {
-    let ctx = this.meshContext
-    ctx.setFillStyle(this.style.meshColor)
-    ctx.setLineWidth(0.5)
-
-    for (var i = 0; i <= this.chartCanvasViewModel.meshRect.row; i++) {
+  this._drawMeshContext = function() {
+    var meshCtx = this.meshContext
+    var meshRect = this.chartCanvasViewModel.meshRect
+    meshCtx.setStrokeStyle(ChartStyles.mesh.color)
+    meshCtx.setLineWidth(ChartStyles.mesh.lineWidth)
+    for (var i = 0; i <= meshRect.row; i++) {
       var y = meshRect.beginY + i * meshRect.spaceY
-      ctx.beginPath()
-      ctx.moveTo(meshRect.beginX, y)
-      ctx.lineTo(meshRect.endX, y)
-      ctx.stroke()
+      meshCtx.beginPath()
+      meshCtx.moveTo(meshRect.beginX, y)
+      meshCtx.lineTo(meshRect.endX, y)
+      meshCtx.stroke()
     }
-    for (var i = 0; i <= this.chartCanvasViewModel.meshRect.column; i++) {
+    for (var i = 0; i <= meshRect.column; i++) {
       var x = meshRect.beginX + i * meshRect.spaceX
-      ctx.beginPath()
-      ctx.moveTo(x, meshRect.beginY)
-      ctx.lineTo(x, meshRect.endY)
-      ctx.stroke()
+      meshCtx.beginPath()
+      meshCtx.moveTo(x, meshRect.beginY)
+      meshCtx.lineTo(x, meshRect.endY)
+      meshCtx.stroke()
     }
+
+    meshCtx.draw()
   }
 
-  this._updatePriceContext = function(priceRect) {
-    var ctx = this.priceContext
-    ctx.setFillStyle(this.style.priceTextColor)
-    ctx.setFontSize(this.style.priceTextFont)
-    ctx.setTextAlign(this.priceRect.textAlign)
+  this._drawPriceAndPercentContext = function() {
+    var priceRect = this.chartCanvasViewModel.priceRect
+    var percentRect = this.chartCanvasViewModel.percentRect
 
-    for (var i = 0; i <= this.chartCanvasViewModel.meshRect.row; i++) {
+    var priceCtx = this.priceContext
+    var percentCtx = this.percentContext
+
+    priceCtx.setFontSize(ChartStyles.priceText.font)
+    percentCtx.setFontSize(ChartStyles.priceText.font)
+
+    priceCtx.setTextAlign(priceRect.textAlign)
+    percentCtx.setTextAlign(percentRect.textAlign)
+
+    var row = this.chartCanvasViewModel.meshRect.row
+    for (var i = 0; i <= row; i++) {
+      var textColor = ChartStyles.priceText.color.normal
+      if (i < row / 2) textColor = ChartStyles.priceText.color.up
+      if (i > row / 2) textColor = ChartStyles.priceText.color.down
+      priceCtx.setFillStyle(textColor)
+      percentCtx.setFillStyle(textColor)
+
+      var offsetVertical = ChartStyles.priceText.font / 2
+      if (i == 0) offsetVertical *= 2
+      if (i == row) offsetVertical *= 0
+
       var y = priceRect.beginY + i * priceRect.spaceY
       var price = this.quotationViewModel.getPrice(y)
-      ctx.fillText(price, priceRect.beginX, y)
-    }
-  }
-
-  this._updatePercentContext = function(percentRect) {
-    var ctx = this.percentContext
-    ctx.setFontSize(this.style.percentTextFont)
-    ctx.setTextAlign(this.percentRect.textAlign)
-
-    for (var i = 0; i <= this.chartCanvasViewModel.meshRect.row; i++) {
-      var percentTextColor = this.style.percentTextColor.normal
-      if (i < this.chartCanvasViewModel.meshRect.row / 2) percentTextColor = this.style.percentTextColor.normal
-      if (i > this.chartCanvasViewModel.meshRect.row / 2) percentTextColor = this.style.percentTextColor.normal
-      ctx.setFillStyle(this.style.percentTextColor)
+      priceCtx.fillText(price, priceRect.beginX, y + offsetVertical)
 
       var y = percentRect.beginY + i * percentRect.spaceY
       var percent = this.quotationViewModel.getPercent(y)
-      ctx.fillText(percent, percentRect.beginX, y)
+      percentCtx.fillText(percent, percentRect.beginX, y + offsetVertical)
     }
+
+    priceCtx.draw()
+    percentCtx.draw()
   }
 
-  this._updateTimeContext = function(timeRect) {
-    var ctx = this.timeContext
-    ctx.setFillStyle(this.style.timeTextColor)
-    ctx.setFontSize(this.style.timeTextFont)
+  this._drawTimeContext = function() {
+    var timeCtx = this.timeContext
+    var timeRect = this.chartCanvasViewModel.timeRect
 
-    for (var i = 0; i <= this.chartCanvasViewModel.meshRect.column; i++) {
-      var textAlign = this.style.textAlign.center
-      if (i == 0) textAlign = this.style.textAlign.left
-      if (i == this.chartCanvasViewModel.meshRect.column) textAlign = this.style.textAlign.right
-      ctx.setTextAlign(textAlign)
+    var timeStrings = this.quotationViewModel.timeStrings
+    var timeSections = this.quotationViewModel.timeSections
 
-      var x = timeRect.beginX + i * timeRect.spaceX
-      var time = ''
-      ctx.fillText(time, x, this.timeRect.beginY)
+    timeCtx.setFillStyle(ChartStyles.timeText.color)
+    timeCtx.setFontSize(ChartStyles.timeText.font)
+
+    for (var i = 0; i < timeStrings.length; i++) {
+      var textAlign = ChartStyles.textAlign.center
+      if (i == 0) textAlign = ChartStyles.textAlign.left
+      if (i == timeStrings.length - 1) textAlign = ChartStyles.textAlign.right
+      timeCtx.setTextAlign(textAlign)
+
+      var x = timeSections[i]
+      timeCtx.fillText(timeStrings[i], x, timeRect.beginY)
     }
+
+    timeCtx.draw()
   }
 
-  this._updateMinuteLineContext = function(meshRect) {
-    var ctx = this.minuteLineContext
-    ctx.setFillStyle(this.style.minuteLineColor)
-    ctx.setLineWidth(0.5)
+  this._drawChartLineContext = function() {
+    var minuteLineCtx = this.minuteLineContext
+    var avgLineCtx = this.avgLineContext
 
-    ctx.beginPath()
-    ctx.moveTo(meshRect.beginX, meshRect.exdY)
+    var meshRect = this.chartCanvasViewModel.meshRect
+    var kLineItems = this.quotationViewModel.quotationModel.kLineItems
 
-    var x, y
-    for (var i = 0; i <= this.quotationModel.kLineItems.length; i++) {
-      x = meshRect.beginX + i * meshRect.spaceX
-      y = this.getY(this.quotationModel.kLineItems[i])
-      ctx.lineTo(x, y)
+    minuteLineCtx.setStrokeStyle(ChartStyles.minuteLine.color)
+    minuteLineCtx.setFillStyle(ChartStyles.minuteLine.fillcolor)
+    minuteLineCtx.setLineWidth(ChartStyles.minuteLine.width)
+    avgLineCtx.setStrokeStyle(ChartStyles.avgLine.color)
+    avgLineCtx.setLineWidth(ChartStyles.avgLine.width)
+
+    minuteLineCtx.beginPath()
+    avgLineCtx.beginPath()
+
+    var x, y, i = 0
+    x = this.quotationViewModel.getX(i)
+    y = this.quotationViewModel.getY(kLineItems[i].close)
+    minuteLineCtx.moveTo(x, y)
+    y = this.quotationViewModel.getY(kLineItems[i].avg)
+    avgLineCtx.moveTo(x, y)
+
+    for (var i = 0; i < kLineItems.length; i++) {
+      x = this.quotationViewModel.getX(i)
+      y = this.quotationViewModel.getY(kLineItems[i].close)
+      minuteLineCtx.lineTo(x, y)
+      y = this.quotationViewModel.getY(kLineItems[i].avg)
+      avgLineCtx.lineTo(x, y)
     }
-    ctx.lineTo(x, meshRect.exdY)
-    ctx.lineTo(meshRect.beginX, meshRect.exdY)
+    minuteLineCtx.setGlobalAlpha(1)
+    minuteLineCtx.stroke()
 
-    ctx.stroke()
-    ctx.fill()
-  }
+    minuteLineCtx.lineTo(x, meshRect.endY)
+    minuteLineCtx.lineTo(meshRect.beginX, meshRect.endY)
+    minuteLineCtx.setGlobalAlpha(0.2)
+    minuteLineCtx.fill()
 
-  this._updateAvgLineContext = function(meshRect) {
-    var ctx = this.avgLineContext
-    ctx.setLineWidth(0.5)
+    minuteLineCtx.draw()
 
-    ctx.beginPath()
-    ctx.moveTo(meshRect.beginX, meshRect.exdY)
+    avgLineCtx.stroke()
 
-    var x, y
-    for (var i = 0; i <= this.quotationModel.kLineItems.length; i++) {
-      x = meshRect.beginX + i * meshRect.spaceX
-      y = this.getY(this.quotationModel.kLineItems[i])
-      ctx.lineTo(x, y)
-    }
-
-    ctx.stroke()
-
+    avgLineCtx.draw()
   }
 }
