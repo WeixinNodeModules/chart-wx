@@ -2,7 +2,7 @@ var Moment = require('moment/moment')
 
 const kDateFomatterString = 'YYYYMMDD HH:mm'
 
-module.exports = function Moment() {
+function ChartMoment() {
   this.timestampWithTimeString = function(timeString) {
     var moment = this.momentWithTimeString(timeString)
     var timestamp = this.timestampWithMoment(moment)
@@ -10,7 +10,7 @@ module.exports = function Moment() {
   }
 
   this.timestampWithMoment = function(moment) {
-    var timestamp = Moment.format('x')
+    var timestamp = moment.format('X')
     return timestamp
   }
 
@@ -19,3 +19,5 @@ module.exports = function Moment() {
     return moment
   }
 }
+
+module.exports = new ChartMoment()
