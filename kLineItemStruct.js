@@ -1,18 +1,16 @@
-var IsNumber = require('lodash.IsNumber')
-var Moment = require('moment')
-var Percent = require('percent')
+var Percent = require('./utils').percent
 
 module.exports = function KLineItemStruct(quotationData = {
-  open = 0,
-  high = 0,
-  low = 0,
-  close = 0,
-  value = 0,
-  volume = 0,
-  avg = 0,
-  updateTime = '',
-  status = false,
-  preClose = 0
+  open: 0,
+  high: 0,
+  low: 0,
+  close: 0,
+  value: 0,
+  volume: 0,
+  avg: 0,
+  updateTime: '',
+  status: false,
+  preClose: 0
 }) {
   this.open = quotationData.open
   this.high = quotationData.high
