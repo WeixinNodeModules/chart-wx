@@ -12,3 +12,12 @@ KLineItem:{
   status : false
   preClose : 0
 }
+
+ChartCanvasModel:{
+  size : CanvasFrames.size
+  priceFrame : CanvasFrames.priceFrame
+  percentFrame : CanvasFrames.percentFrame
+  timeFrame : CanvasFrames.timeFrame
+  chartFrame : CanvasFrames.chartFrame
+  meshFrame : CanvasFrames.meshFrame
+}

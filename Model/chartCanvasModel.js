@@ -1,25 +1,32 @@
-var CanvasFrame = require('./chartCanvasFrames')
+var CanvasFrames = require('./chartCanvasFrames')
 
-module.exports = function ChartCanvasModel(canvasFrame = CanvasFrame) {
-  this.size = canvasFrame.size
-  this.priceFrame = canvasFrame.priceFrame
-  this.percentFrame = canvasFrame.percentFrame
-  this.timeFrame = canvasFrame.timeFrame
-  this.chartFrame = canvasFrame.chartFrame
+module.exports = function ChartCanvasModel(canvasFrames = CanvasFrames) {
+  var size = canvasFrames.size || CanvasFrames.size
+  var priceFrame = canvasFrames.priceFrame || CanvasFrames.priceFrame
+  var percentFrame = canvasFrames.percentFrame || CanvasFrames.percentFrame
+  var timeFrame = canvasFrames.timeFrame || CanvasFrames.timeFrame
+  var chartFrame = canvasFrames.chartFrame || CanvasFrames.chartFrame
+  var meshFrame = canvasFrames.meshFrame || CanvasFrames.meshFrame
+
+  this.size = size
+  this.priceFrame = priceFrame
+  this.percentFrame = percentFrame
+  this.timeFrame = timeFrame
+  this.chartFrame = chartFrame
   this.meshFrame = {
-    row: canvasFrame.meshFrame.row,
-    column: canvasFrame.meshFrame.column,
+    row: meshFrame.row,
+    column: meshFrame.column,
     origin: {
-      x: canvasFrame.meshFrame.padding.left,
-      y: canvasFrame.meshFrame.padding.top,
+      x: meshFrame.padding.left,
+      y: meshFrame.padding.top,
     },
     end: {
-      x: canvasFrame.size.width - canvasFrame.meshFrame.padding.right,
-      y: canvasFrame.size.height - canvasFrame.meshFrame.padding.bottom,
+      x: size.width - meshFrame.padding.right,
+      y: size.height - meshFrame.padding.bottom,
     },
     size: {
-      width: canvasFrame.size.width - canvasFrame.meshFrame.padding.left - canvasFrame.meshFrame.padding.right,
-      height: canvasFrame.size.height - canvasFrame.meshFrame.padding.top - canvasFrame.meshFrame.padding.bottom,
+      width: canvasFrames.size.width - meshFrame.padding.left - meshFrame.padding.right,
+      height: canvasFrames.size.height - meshFrame.padding.top - meshFrame.padding.bottom,
     },
   }
 }
