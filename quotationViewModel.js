@@ -1,11 +1,14 @@
 var Percent = require('./utils').percent
+var Between = require('./utils').between
 
 module.exports = function QuotationViewModel(chartCanvasModel) {
   this.chartCanvasModel = chartCanvasModel
-  this.meshX = chartCanvasModel.meshFrame.origin.x
-  this.meshY = chartCanvasModel.meshFrame.origin.y
+  this.meshBeginX = chartCanvasModel.meshFrame.origin.x
+  this.meshBeginY = chartCanvasModel.meshFrame.origin.y
   this.meshWidth = chartCanvasModel.meshFrame.size.width
   this.meshHeight = chartCanvasModel.meshFrame.size.height
+  this.meshEndX = chartCanvasModel.meshFrame.end.x
+  this.meshEndY = chartCanvasModel.meshFrame.end.y
   this.timeStrings = []
   this.timeSections = []
 
@@ -17,6 +20,25 @@ module.exports = function QuotationViewModel(chartCanvasModel) {
     this._setupTimings(this.quotationModel.timings)
   }
 
+  this.searchKLineItem = function(point) {
+    return this.quotationModel.kLineItems[this.getIndex(point.x)]
+  }
+
+  this.getAvaiablePoint = function(point) {
+    return {
+      x: this.getAvaiableX(point.x),
+      y: this.getAvaiableY(point.y),
+    }
+  }
+
+  this.getAvaiableX = function(x) {
+    return Between(this.meshBeginX, this.getX(this.quotationModel.kLineItems.length - 1), x)
+  }
+
+  this.getAvaiableY = function(y) {
+    return Between(this.meshBeginY, this.meshEndY, y)
+  }
+
   this.getHorizantalLength = function(index) {
     let scale = index / this.quotationModel.totalDataCount
     scale = Math.max(Math.min(1, scale), 0)
@@ -24,10 +46,11 @@ module.exports = function QuotationViewModel(chartCanvasModel) {
   }
 
   this.getX = function(index) {
-    return this.meshX + this.getHorizantalLength(index)
+    return this.meshBeginX + this.getHorizantalLength(index)
   }
 
   this.getIndex = function(x) {
+    let distance = x - this.meshBeginX
     let scale = distance / this.meshWidth
     return Math.round(scale * this.quotationModel.totalDataCount)
   }
@@ -35,11 +58,11 @@ module.exports = function QuotationViewModel(chartCanvasModel) {
   this.getY = function(price) {
     let scale = (this.beginPriceValue - price) / this.totalPriceDistance
     scale = Math.max(Math.min(1, scale), 0)
-    return this.meshY + scale * this.meshHeight
+    return this.meshBeginY + scale * this.meshHeight
   }
 
   this.getPrice = function(y) {
-    let distance = y - this.meshY
+    let distance = y - this.meshBeginY
     let scale = distance / this.meshHeight
     let price = this.beginPriceValue - scale * this.totalPriceDistance
     return price.toFixed(this.quotationModel.decimalCount)
@@ -59,7 +82,7 @@ module.exports = function QuotationViewModel(chartCanvasModel) {
 
   this._setupTimings = function(timings) {
     let timeStrings = []
-    let timeSections = [this.meshX]
+    let timeSections = [this.meshBeginX]
     let latestTiming = ''
     for (var i = 0; i < timings.length; i++) {
       latestTiming = i > 0 ? latestTiming + '/' : ''

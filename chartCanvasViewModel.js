@@ -15,6 +15,8 @@ module.exports = function ChartCanvas(chartCanvasModel) {
     beginY: chartCanvasModel.meshFrame.origin.y,
     endX: chartCanvasModel.meshFrame.end.x,
     endY: chartCanvasModel.meshFrame.end.y,
+    centerX: chartCanvasModel.meshFrame.origin.x + chartCanvasModel.meshFrame.size.width / 2,
+    centerY: chartCanvasModel.meshFrame.origin.y + chartCanvasModel.meshFrame.size.height / 2,
     spaceX: chartCanvasModel.meshFrame.size.width / chartCanvasModel.meshFrame.column,
     spaceY: chartCanvasModel.meshFrame.size.height / chartCanvasModel.meshFrame.row,
   }

@@ -33,27 +33,38 @@ module.exports = function Chart() {
       this.quotationModel.init()
       this.quotationModel.updateInfo(quotationInfo)
     }
-    this.quotationModel.updateDatas(_kLineItems(kLineItems, quotationInfo.preClose))
+    this.quotationModel.updateDatas(_kLineItems(kLineItems, quotationInfo.preClose, quotationInfo.decimalCount))
     this.quotationViewModel.updateDatas(this.quotationModel)
     this.quotationPainter.updateDatas(this.quotationViewModel)
   }
+
+  this.drawAxis = function(point) {
+    var avaiablePoint = this.quotationViewModel.getAvaiablePoint(point)
+    var kLineItem = this.quotationViewModel.searchKLineItem(avaiablePoint)
+    this.quotationPainter.drawAxis(avaiablePoint, kLineItem)
+    return kLineItem
+  }
+
+  this.clearAxis = function() {
+    this.quotationPainter.clearAxis()
+  }
 }
 
-var _kLineItems = function(datas, preClose) {
+var _kLineItems = function(datas, preClose, decimalCount) {
   var kLineItems = []
   for (var i = 0; i < datas.length; i++) {
     var currentData = datas[i]
     var kLineItem = new KLineItemStruct({
-      open: currentData.open,
-      high: currentData.high,
-      low: currentData.low,
-      close: currentData.close,
+      open: Number(currentData.open).toFixed(decimalCount),
+      high: Number(currentData.high).toFixed(decimalCount),
+      low: Number(currentData.low).toFixed(decimalCount),
+      close: Number(currentData.close).toFixed(decimalCount),
+      preClose: Number(preClose).toFixed(decimalCount),
+      avg: Number(currentData.avg).toFixed(decimalCount),
       value: currentData.value,
       volume: currentData.volume,
-      avg: currentData.avg,
       updateTime: currentData.updatetime,
       status: Boolean(currentData.status),
-      preClose: preClose
     })
     kLineItems.push(kLineItem)
   }

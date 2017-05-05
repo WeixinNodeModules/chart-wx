@@ -6,4 +6,5 @@ module.exports = {
   time: 'timeCanvas',
   minuteLine: 'minuteLineCanvas',
   avgLine: 'avgLineCanvas',
+  interactionOut: 'interactionOutCanvas',
 }

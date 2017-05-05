@@ -11,6 +11,7 @@ module.exports = function QuotationPainter(chartCanvasViewModel) {
   this.timeContext = wx.createCanvasContext(ChartCanvasIds.time)
   this.minuteLineContext = wx.createCanvasContext(ChartCanvasIds.minuteLine)
   this.avgLineContext = wx.createCanvasContext(ChartCanvasIds.avgLine)
+  this.interactionOutContext = wx.createCanvasContext(ChartCanvasIds.interactionOut)
 
   this.init = function() {
     this._drawBackgroundContext()
@@ -25,6 +26,69 @@ module.exports = function QuotationPainter(chartCanvasViewModel) {
     if (this.shouldDrawTime) this._drawTimeContext()
     if (marginValueChanged) this._drawPriceAndPercentContext()
     this._drawChartLineContext()
+  }
+
+  this.drawAxis = function(point, kLineItem) {
+    var interactionOutCtx = this.interactionOutContext
+    var meshRect = this.chartCanvasViewModel.meshRect
+    var priceRect = this.chartCanvasViewModel.priceRect
+    var percentRect = this.chartCanvasViewModel.percentRect
+    var interactionOutRect = this.chartCanvasViewModel.interactionOutRect
+    var interactionOutStyle = ChartStyles.interactionOut
+
+    interactionOutCtx.setStrokeStyle(interactionOutStyle.axis.color)
+    interactionOutCtx.setLineWidth(interactionOutStyle.axis.lineWidth)
+
+    var x = point.x
+    var y = point.y
+    interactionOutCtx.beginPath()
+    interactionOutCtx.moveTo(x, meshRect.beginY)
+    interactionOutCtx.lineTo(x, meshRect.endY)
+    interactionOutCtx.stroke()
+    interactionOutCtx.beginPath()
+    interactionOutCtx.moveTo(meshRect.beginX, y)
+    interactionOutCtx.lineTo(meshRect.endX, y)
+    interactionOutCtx.stroke()
+
+    var time = kLineItem.updateTime.replace(/[0-9]{8} /, '').replace(/:[0-9]{2}$/, '')
+    var timeTextAlign = ChartStyles.textAlign.center
+    var timeLabelOffset = interactionOutStyle.timeLabel.width / 2
+    if (x < meshRect.centerX) {
+      timeTextAlign = ChartStyles.textAlign.right
+      timeLabelOffset *= 2
+    }
+    if (x > meshRect.centerX) {
+      timeTextAlign = ChartStyles.textAlign.left
+      timeLabelOffset *= 0
+    }
+
+    interactionOutCtx.setFillStyle(interactionOutStyle.timeLabel.color)
+    interactionOutCtx.fillRect(x - timeLabelOffset, meshRect.endY, interactionOutStyle.timeLabel.width, interactionOutStyle.timeLabel.height)
+    interactionOutCtx.setFillStyle(interactionOutStyle.timeLabel.textColor)
+    interactionOutCtx.setFontSize(interactionOutStyle.timeLabel.font)
+    interactionOutCtx.setTextAlign(timeTextAlign)
+    interactionOutCtx.fillText(time, x, meshRect.endY + interactionOutStyle.timeLabel.height)
+
+    interactionOutCtx.setFillStyle(interactionOutStyle.priceLabel.color)
+    interactionOutCtx.fillRect(meshRect.beginX - interactionOutStyle.priceLabel.width, y - interactionOutStyle.priceLabel.height / 2, interactionOutStyle.priceLabel.width, interactionOutStyle.priceLabel.height)
+    interactionOutCtx.setFillStyle(interactionOutStyle.priceLabel.textColor)
+    interactionOutCtx.setFontSize(interactionOutStyle.priceLabel.font)
+    interactionOutCtx.setTextAlign(priceRect.textAlign)
+    interactionOutCtx.fillText(kLineItem.close, priceRect.beginX, y + interactionOutStyle.priceLabel.font / 2)
+
+    interactionOutCtx.setFillStyle(interactionOutStyle.percentLabel.color)
+    interactionOutCtx.fillRect(meshRect.endX - interactionOutStyle.percentLabel.width, y - interactionOutStyle.percentLabel.height / 2, interactionOutStyle.percentLabel.width, interactionOutStyle.percentLabel.height)
+    interactionOutCtx.setFillStyle(interactionOutStyle.percentLabel.textColor)
+    interactionOutCtx.setFontSize(interactionOutStyle.percentLabel.font)
+    interactionOutCtx.setTextAlign(percentRect.textAlign)
+    interactionOutCtx.fillText(kLineItem.percent, percentRect.beginX, y + interactionOutStyle.percentLabel.font / 2)
+
+    interactionOutCtx.draw()
+  }
+
+  this.clearAxis = function() {
+    var interactionOutCtx = this.interactionOutContext
+    interactionOutCtx.draw()
   }
 
   this._isMarginValueChanged = function(currentQuotationViewModel, newQuotationViewModel) {
