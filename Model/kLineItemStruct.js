@@ -1,27 +1,16 @@
 var Percent = require('./utils').percent
 
-module.exports = function KLineItemStruct(quotationData = {
-  open: 0,
-  high: 0,
-  low: 0,
-  close: 0,
-  value: 0,
-  volume: 0,
-  avg: 0,
-  updateTime: '',
-  status: false,
-  preClose: 0
-}) {
-  this.open = quotationData.open
-  this.high = quotationData.high
-  this.low = quotationData.low
-  this.close = quotationData.close
-  this.value = quotationData.value
-  this.volume = quotationData.volume
-  this.avg = quotationData.avg
-  this.updateTime = quotationData.updateTime
-  this.status = quotationData.status
-  this.preClose = quotationData.preClose
+module.exports = function KLineItemStruct(quotationData) {
+  this.open = quotationData.open || 0
+  this.high = quotationData.high || 0
+  this.low = quotationData.low || 0
+  this.close = quotationData.close || 0
+  this.value = quotationData.value || 0
+  this.volume = quotationData.volume || 0
+  this.avg = quotationData.avg || 0
+  this.updateTime = quotationData.updateTime || ''
+  this.status = quotationData.status || false
+  this.preClose = quotationData.preClose || 0
 
   this.upDrop = this.close - this.preClose
   this.percent = Percent(this.upDrop, this.preClose)
