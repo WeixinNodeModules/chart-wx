@@ -1,5 +1,5 @@
 var KLineItemStruct = require('./kLineItemStruct')
-var Moment = require('./moment')
+var Moment = require('../utils/moment')
 
 const kQuotationSpace = 1 * 60 // second
 

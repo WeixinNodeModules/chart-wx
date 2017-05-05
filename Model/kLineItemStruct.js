@@ -1,4 +1,4 @@
-var Percent = require('./utils').percent
+var Percent = require('../utils/math').percent
 
 module.exports = function KLineItemStruct(quotationData) {
   this.open = quotationData.open || 0

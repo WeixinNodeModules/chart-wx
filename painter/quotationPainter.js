@@ -1,5 +1,5 @@
-var ChartStyles = require('./chartStyles')
-var ChartCanvasIds = require('./chartCanvasIds')
+var ChartStyles = require('../config/chartStyles')
+var ChartCanvasIds = require('../view/chartCanvasIds')
 
 module.exports = function QuotationPainter(chartCanvasViewModel, chartStyles = ChartStyles) {
   this.chartCanvasViewModel = chartCanvasViewModel

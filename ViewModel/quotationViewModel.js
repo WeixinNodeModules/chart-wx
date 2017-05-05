@@ -1,5 +1,5 @@
-var Percent = require('./utils').percent
-var Between = require('./utils').between
+var Percent = require('../utils/math').percent
+var Between = require('../utils/math').between
 
 module.exports = function QuotationViewModel(chartCanvasModel) {
   this.chartCanvasModel = chartCanvasModel

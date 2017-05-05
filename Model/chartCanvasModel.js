@@ -1,4 +1,4 @@
-var CanvasFrames = require('./chartCanvasFrames')
+var CanvasFrames = require('../config/chartCanvasFrames')
 
 module.exports = function ChartCanvasModel(canvasFrames = CanvasFrames) {
   var size = canvasFrames.size || CanvasFrames.size
