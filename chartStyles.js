@@ -12,7 +12,7 @@ module.exports = {
     color: 'gray',
   },
   priceText: {
-    font: '12',
+    font: 12,
     color: {
       normal: 'black',
       up: 'red',
@@ -20,7 +20,7 @@ module.exports = {
     },
   },
   percentText: {
-    font: '12',
+    font: 12,
     color: {
       normal: 'black',
       up: 'red',
@@ -28,7 +28,7 @@ module.exports = {
     },
   },
   timeText: {
-    font: '12',
+    font: 12,
     color: 'black',
   },
   minuteLine: {
@@ -39,5 +39,32 @@ module.exports = {
   avgLine: {
     width: 0.5,
     color: 'orange',
+  },
+  interactionOut: {
+    axis: {
+      lineWidth: 0.5,
+      color: 'gray',
+    },
+    timeLabel: {
+      font: 12,
+      textColor: 'white',
+      color: 'orange',
+      width: 35,
+      height: 20
+    },
+    priceLabel: {
+      font: 12,
+      textColor: 'white',
+      color: 'orange',
+      width: 50,
+      height: 20
+    },
+    percentLabel: {
+      font: 12,
+      textColor: 'white',
+      color: 'orange',
+      width: 35,
+      height: 20
+    },
   }
 }

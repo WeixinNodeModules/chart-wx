@@ -18,7 +18,7 @@ module.exports = {
     textAlign: 'center',
   },
   percentFrame: {
-    paddingLeft: 375,
+    paddingLeft: 365,
     textAlign: 'right',
   },
   timeFrame: {
