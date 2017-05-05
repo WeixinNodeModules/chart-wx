@@ -1,8 +1,9 @@
 var ChartStyles = require('./chartStyles')
 var ChartCanvasIds = require('./chartCanvasIds')
 
-module.exports = function QuotationPainter(chartCanvasViewModel) {
+module.exports = function QuotationPainter(chartCanvasViewModel, chartStyles = ChartStyles) {
   this.chartCanvasViewModel = chartCanvasViewModel
+  this.chartStyles = chartStyles
 
   this.backgroundContext = wx.createCanvasContext(ChartCanvasIds.background)
   this.meshContext = wx.createCanvasContext(ChartCanvasIds.mesh)
@@ -34,7 +35,7 @@ module.exports = function QuotationPainter(chartCanvasViewModel) {
     var priceRect = this.chartCanvasViewModel.priceRect
     var percentRect = this.chartCanvasViewModel.percentRect
     var interactionOutRect = this.chartCanvasViewModel.interactionOutRect
-    var interactionOutStyle = ChartStyles.interactionOut
+    var interactionOutStyle = this.chartStyles.interactionOut
 
     interactionOutCtx.setStrokeStyle(interactionOutStyle.axis.color)
     interactionOutCtx.setLineWidth(interactionOutStyle.axis.lineWidth)
@@ -51,14 +52,14 @@ module.exports = function QuotationPainter(chartCanvasViewModel) {
     interactionOutCtx.stroke()
 
     var time = kLineItem.updateTime.replace(/[0-9]{8} /, '').replace(/:[0-9]{2}$/, '')
-    var timeTextAlign = ChartStyles.textAlign.center
+    var timeTextAlign = this.chartStyles.textAlign.center
     var timeLabelOffset = interactionOutStyle.timeLabel.width / 2
     if (x < meshRect.centerX) {
-      timeTextAlign = ChartStyles.textAlign.right
+      timeTextAlign = this.chartStyles.textAlign.right
       timeLabelOffset *= 2
     }
     if (x > meshRect.centerX) {
-      timeTextAlign = ChartStyles.textAlign.left
+      timeTextAlign = this.chartStyles.textAlign.left
       timeLabelOffset *= 0
     }
 
@@ -101,7 +102,7 @@ module.exports = function QuotationPainter(chartCanvasViewModel) {
   this._drawBackgroundContext = function() {
     var bachgroundCtx = this.backgroundContext
     var backgroundRect = this.chartCanvasViewModel.backgroundRect
-    bachgroundCtx.setFillStyle(ChartStyles.background.color)
+    bachgroundCtx.setFillStyle(this.chartStyles.background.color)
     bachgroundCtx.fillRect(backgroundRect.beginX, backgroundRect.beginY, backgroundRect.endX, backgroundRect.endY)
     bachgroundCtx.draw()
   }
@@ -109,8 +110,8 @@ module.exports = function QuotationPainter(chartCanvasViewModel) {
   this._drawMeshContext = function() {
     var meshCtx = this.meshContext
     var meshRect = this.chartCanvasViewModel.meshRect
-    meshCtx.setStrokeStyle(ChartStyles.mesh.color)
-    meshCtx.setLineWidth(ChartStyles.mesh.lineWidth)
+    meshCtx.setStrokeStyle(this.chartStyles.mesh.color)
+    meshCtx.setLineWidth(this.chartStyles.mesh.lineWidth)
     for (var i = 0; i <= meshRect.row; i++) {
       var y = meshRect.beginY + i * meshRect.spaceY
       meshCtx.beginPath()
@@ -136,21 +137,21 @@ module.exports = function QuotationPainter(chartCanvasViewModel) {
     var priceCtx = this.priceContext
     var percentCtx = this.percentContext
 
-    priceCtx.setFontSize(ChartStyles.priceText.font)
-    percentCtx.setFontSize(ChartStyles.priceText.font)
+    priceCtx.setFontSize(this.chartStyles.priceText.font)
+    percentCtx.setFontSize(this.chartStyles.priceText.font)
 
     priceCtx.setTextAlign(priceRect.textAlign)
     percentCtx.setTextAlign(percentRect.textAlign)
 
     var row = this.chartCanvasViewModel.meshRect.row
     for (var i = 0; i <= row; i++) {
-      var textColor = ChartStyles.priceText.color.normal
-      if (i < row / 2) textColor = ChartStyles.priceText.color.up
-      if (i > row / 2) textColor = ChartStyles.priceText.color.down
+      var textColor = this.chartStyles.priceText.color.normal
+      if (i < row / 2) textColor = this.chartStyles.priceText.color.up
+      if (i > row / 2) textColor = this.chartStyles.priceText.color.down
       priceCtx.setFillStyle(textColor)
       percentCtx.setFillStyle(textColor)
 
-      var offsetVertical = ChartStyles.priceText.font / 2
+      var offsetVertical = this.chartStyles.priceText.font / 2
       if (i == 0) offsetVertical *= 2
       if (i == row) offsetVertical *= 0
 
@@ -174,13 +175,13 @@ module.exports = function QuotationPainter(chartCanvasViewModel) {
     var timeStrings = this.quotationViewModel.timeStrings
     var timeSections = this.quotationViewModel.timeSections
 
-    timeCtx.setFillStyle(ChartStyles.timeText.color)
-    timeCtx.setFontSize(ChartStyles.timeText.font)
+    timeCtx.setFillStyle(this.chartStyles.timeText.color)
+    timeCtx.setFontSize(this.chartStyles.timeText.font)
 
     for (var i = 0; i < timeStrings.length; i++) {
-      var textAlign = ChartStyles.textAlign.center
-      if (i == 0) textAlign = ChartStyles.textAlign.left
-      if (i == timeStrings.length - 1) textAlign = ChartStyles.textAlign.right
+      var textAlign = this.chartStyles.textAlign.center
+      if (i == 0) textAlign = this.chartStyles.textAlign.left
+      if (i == timeStrings.length - 1) textAlign = this.chartStyles.textAlign.right
       timeCtx.setTextAlign(textAlign)
 
       var x = timeSections[i]
@@ -197,11 +198,11 @@ module.exports = function QuotationPainter(chartCanvasViewModel) {
     var meshRect = this.chartCanvasViewModel.meshRect
     var kLineItems = this.quotationViewModel.quotationModel.kLineItems
 
-    minuteLineCtx.setStrokeStyle(ChartStyles.minuteLine.color)
-    minuteLineCtx.setFillStyle(ChartStyles.minuteLine.fillcolor)
-    minuteLineCtx.setLineWidth(ChartStyles.minuteLine.width)
-    avgLineCtx.setStrokeStyle(ChartStyles.avgLine.color)
-    avgLineCtx.setLineWidth(ChartStyles.avgLine.width)
+    minuteLineCtx.setStrokeStyle(this.chartStyles.minuteLine.color)
+    minuteLineCtx.setFillStyle(this.chartStyles.minuteLine.fillcolor)
+    minuteLineCtx.setLineWidth(this.chartStyles.minuteLine.width)
+    avgLineCtx.setStrokeStyle(this.chartStyles.avgLine.color)
+    avgLineCtx.setLineWidth(this.chartStyles.avgLine.width)
 
     minuteLineCtx.beginPath()
     avgLineCtx.beginPath()
