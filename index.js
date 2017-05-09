@@ -1,9 +1,10 @@
-var QuotationModel = require('./quotationModel')
-var QuotationViewModel = require('./quotationViewModel')
-var QuotationPainter = require('./quotationPainter')
-var ChartCanvasModel = require('./chartCanvasModel')
-var ChartCanvasViewModel = require('./chartCanvasViewModel')
-var KLineItemStruct = require('./kLineItemStruct')
+var KLineItemStruct = require('./model/kLineItemStruct')
+var QuotationModel = require('./model/quotationModel')
+var ChartCanvasModel = require('./model/chartCanvasModel')
+var QuotationViewModel = require('./viewModel/quotationViewModel')
+var ChartCanvasViewModel = require('./viewModel/chartCanvasViewModel')
+var QuotationPainter = require('./painter/quotationPainter')
+
 
 module.exports = function Chart() {
   //创建画布数据模型 不会变更
